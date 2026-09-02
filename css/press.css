@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Electronic Press Kit (EPK) page styles
+   ========================================================================== */
+
+.epk-section {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.epk-section:last-of-type {
+  border-bottom: none;
+}
+
+.epk-section__title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-3);
+}
+
+/* ---- Hero ---- */
+
+.epk-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+
+.epk-hero__photo {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f2f2f2;
+  flex-shrink: 0;
+}
+
+.epk-hero__name {
+  font-size: 2.5rem;
+  margin: 0 0 var(--space-1);
+}
+
+.epk-hero__tagline {
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.epk-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ---- Bio ---- */
+
+.epk-bio p {
+  max-width: 65ch;
+}
+
+/* ---- Photo gallery ---- */
+
+.epk-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2);
+}
+
+.epk-gallery__item {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f2f2f2;
+}
+
+.epk-gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.epk-gallery__download {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+}
+
+/* ---- Media embeds (music / video) ---- */
+
+.epk-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.epk-media-grid iframe {
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+}
+
+/* ---- Press quotes ---- */
+
+.epk-quotes {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.epk-quote {
+  margin: 0;
+  padding-left: var(--space-2);
+  border-left: 3px solid var(--color-accent);
+}
+
+.epk-quote p {
+  font-size: 1.1rem;
+  font-style: italic;
+  margin: 0 0 var(--space-1);
+}
+
+.epk-quote cite {
+  font-style: normal;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* ---- Shows / tour dates ---- */
+
+.epk-shows {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.epk-shows th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  padding: var(--space-1) var(--space-2) var(--space-1) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.epk-shows td {
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ---- Highlights / stats ---- */
+
+.epk-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+
+.epk-stat__number {
+  font-size: 2rem;
+  font-weight: 600;
+  display: block;
+}
+
+.epk-stat__label {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* ---- Socials ---- */
+
+.epk-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ---- Contact / booking + download CTA ---- */
+
+.epk-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.epk-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.epk-button:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
