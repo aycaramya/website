@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sisyphus</title>
+
+<style>
+/* ===========================================================
+   SISYPHUS
+   Act I   the loop      clinical, scroll-snapped
+   Act II  the landing   a progress bar that resolves badly
+   Act III the site      tracks arcing around the title
+
+   No dependencies. One file. ~90 lines of plain JS at the end.
+
+   EDITING THE TRACKLIST
+   Add or remove an <li> in .orbit and a matching <li> in
+   .tracks — the arc re-spaces and re-sizes itself.
+   Marks:  class="cut" on the <li>   (unnumbered, struck)
+           class="added" on the <li> (amber ring / underline)
+           <span class="moved">was 07</span>
+   Arc geometry: ARC_START / ARC_SWEEP in the script.
+   =========================================================== */
+
+:root {
+  --paper:  #f4f3f0;
+  --ink:    #101012;
+  --grey:   #7f7f84;
+
+  --yellow: #ffd400;
+  --ember:  #e2542a;
+  --amber:  #e79a3c;
+  --rose:   #c4456b;
+
+  --era: Verdana, Geneva, Tahoma, sans-serif;
+  --heavy: "Arial Black", Impact, Haettenschweiler, sans-serif;
+  --mono: "Courier New", monospace;
+  --clinical: -apple-system, "Helvetica Neue", Inter, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; overflow: hidden; background: #fff; }
+
+/* ---------------- ACT I ---------------- */
+
+#stage {
+  height: 100svh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;          /* must stay auto: JS resets scrollTop */
+  scrollbar-width: none;
+  background: #fff;
+}
+#stage::-webkit-scrollbar { display: none; }
+
+.panel {
+  height: 100svh;
+  scroll-snap-align: start;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 0 8vw;
+  font: 300 clamp(1.6rem, 4.2vw, 3.1rem)/1.25 var(--clinical);
+  letter-spacing: -0.025em;
+  color: #111;
+}
+.panel.opening {
+  font-weight: 200;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  letter-spacing: -0.05em;
+}
+.panel small {
+  display: block; margin-top: 2.2rem;
+  font-size: 0.78rem; letter-spacing: 0.06em; color: #9a9a9a;
+}
+
+#skip {
+  position: fixed; right: 1.4rem; bottom: 1.4rem; z-index: 5;
+  border: 0; background: none; cursor: pointer;
+  font: 400 0.76rem/1 var(--clinical);
+  letter-spacing: 0.06em; color: #b4b4b4; padding: 0.6rem;
+}
+#skip:hover, #skip:focus-visible { color: #111; }
+
+/* ---------------- ACT II ---------------- */
+
+#landing {
+  position: fixed; inset: 0; z-index: 10;
+  display: none; place-content: center; justify-items: center;
+  background: #fff;
+  font: 400 0.82rem/1 var(--clinical);
+  letter-spacing: 0.08em; color: #666;
+}
+#landing.on { display: grid; }
+
+#bar { width: min(230px, 54vw); height: 2px; background: #e6e6e6; margin-bottom: 1.6rem; overflow: hidden; }
+#fill { height: 100%; width: 0; background: #111; transition: width 2.4s cubic-bezier(.2,.7,.3,1); }
+#fill.go { width: 100%; }
+
+#status { min-height: 1.2em; }
+#status.punchline {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3.4vw, 1.6rem);
+  letter-spacing: 0; color: #111;
+}
+
+/* ---------------- ACT III ---------------- */
+
+#site {
+  display: none;
+  min-height: 100svh;
+  background:
+    repeating-linear-gradient(0deg, rgba(16,16,18,.055) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(16,16,18,.055) 0 1px, transparent 1px 46px),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--era);
+  font-size: 12px;
+  line-height: 1.6;
+  text-transform: lowercase;
+}
+#site.on { display: block; }
+
+.ribbon {
+  background: var(--yellow); color: var(--ink);
+  border-block: 3px solid var(--ink);
+  overflow: hidden; white-space: nowrap;
+  font-size: 12px; font-weight: bold; letter-spacing: 0.04em;
+  padding: 8px 0;
+}
+.ribbon span { display: inline-block; padding-left: 100%; animation: slide 36s linear infinite; }
+@keyframes slide { to { transform: translateX(-100%); } }
+
+.bar { display: flex; flex-wrap: wrap; justify-content: center; padding: 14px 10px 0; }
+.bar a {
+  font-size: 12px; font-weight: bold; text-decoration: none;
+  color: var(--ink); background: #fff;
+  border: 2px solid var(--ink);
+  margin: 0 -2px -2px 0;
+  padding: 7px 15px;
+}
+.bar a:hover, .bar a:focus-visible { background: var(--amber); outline: none; }
+
+/* ---- the hub ---- */
+
+.upper {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 10px 10px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 214px;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 720px) { .upper { grid-template-columns: minmax(0, 1fr); } }
+
+.hub {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 18px 0 6px;
+  --disc: 76px;
+  --r: 200px;
+  --sun: 340px;
+}
+.hub::before {
+  content: "";
+  position: absolute; left: 50%; top: 50%;
+  width: var(--sun); aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+      rgba(231,154,60,.40) 0%, rgba(226,84,42,.20) 40%, transparent 66%);
+}
+
+.core { position: relative; max-width: 330px; text-align: center; }
+.core h1 {
+  margin: 0;
+  font-family: var(--heavy);
+  text-transform: uppercase;
+  font-size: clamp(1.9rem, 8vw, 3.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-shadow: 0.035em 0.035em 0 var(--amber), 0.07em 0.07em 0 var(--ember);
+}
+.core .tag { margin: 12px auto 0; max-width: 26ch; font-size: 11px; color: #3c3c40; }
+
+/* default (and narrow-container fallback): a wrapped row */
+ol.orbit {
+  list-style: none;
+  margin: 20px 0 0; padding: 0;
+  position: relative;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+}
+ol.orbit li { width: var(--disc); height: var(--disc); }
+
+/* wide enough: the discs go into orbit */
+.hub.arc ol.orbit { display: block; margin: 0; }
+.hub.arc ol.orbit li {
+  position: absolute;
+  left: 50%; top: 50%;
+  margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
+}
+
+ol.orbit a {
+  display: grid; place-content: center;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ink);
+  text-align: center; text-decoration: none;
+  color: var(--ink);
+  padding: 5px;
+}
+ol.orbit a:hover, ol.orbit a:focus-visible { background: var(--amber); outline: none; }
+ol.orbit .n { display: block; font-family: var(--mono); font-size: 10px; color: var(--grey); }
+ol.orbit .t { display: block; font-size: 9px; font-weight: bold; line-height: 1.2; overflow-wrap: anywhere; }
+
+ol.orbit li.cut a { background: #f1efec; border-style: dashed; }
+ol.orbit li.cut .t { text-decoration: line-through; text-decoration-color: var(--rose); color: var(--grey); }
+ol.orbit li.added a { border-color: var(--amber); border-width: 4px; }
+
+/* ---- boxes ---- */
+
+.box { background: #fff; border: 2px solid var(--ink); }
+.box > h2 {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-size: 12px; font-weight: bold; letter-spacing: 0.06em;
+  padding: 6px 10px;
+}
+.box > .inner { padding: 10px 12px 14px; }
+
+.side p { margin: 0 0 10px; font-size: 11px; }
+.side .stamp { display: block; font-family: var(--mono); font-size: 10px; color: var(--grey); margin-top: 2px; }
+.side hr { border: 0; border-top: 1px dotted #b9b9bd; margin: 10px 0; }
+
+.lower { max-width: 980px; margin: 14px auto 0; padding: 0 10px 26px; }
+
+.legend { font-family: var(--mono); font-size: 11px; color: var(--grey); margin: 0 0 4px; }
+.legend del { color: var(--grey); text-decoration-color: var(--rose); }
+.legend ins { text-decoration: none; border-bottom: 3px solid var(--amber); color: var(--ink); }
+.legend .moved { color: var(--ember); }
+.seq {
+  font-family: var(--mono); font-size: 11px; color: var(--grey);
+  margin: 0 0 10px; border-bottom: 1px dashed var(--grey); padding-bottom: 8px;
+}
+
+ol.tracks { list-style: none; margin: 0; padding: 0; counter-reset: t; }
+ol.tracks > li { counter-increment: t; border-bottom: 1px dotted #b9b9bd; }
+ol.tracks > li:last-child { border-bottom: 0; }
+ol.tracks > li.cut { counter-increment: none; }   /* cut songs don't take a number */
+
+.tracks summary {
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 8px 2px; cursor: pointer; list-style: none;
+  font-size: 14px; font-weight: bold;
+}
+.tracks summary::-webkit-details-marker { display: none; }
+.tracks summary::before {
+  content: counter(t, decimal-leading-zero);
+  font-family: var(--mono); font-size: 11px; font-weight: normal; color: var(--grey);
+}
+.tracks li.cut summary::before { content: "——"; }
+.tracks summary:hover { color: var(--ember); }
+.tracks summary:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.tracks details[open] summary { color: var(--ember); }
+
+.tracks del { color: var(--grey); text-decoration-thickness: 1px; text-decoration-color: var(--rose); }
+.tracks ins { text-decoration: none; border-bottom: 3px solid var(--amber); }
+
+.moved { font-family: var(--mono); font-size: 10px; font-weight: normal; color: var(--ember); }
+
+.note { padding: 2px 0 12px 30px; max-width: 60ch; color: #34343a; }
+.note .meta { font-family: var(--mono); font-size: 11px; color: var(--grey); margin: 0 0 6px; }
+.note p { margin: 0 0 8px; }
+
+a { color: var(--ember); text-underline-offset: 0.2em; }
+a:hover { background: var(--yellow); color: var(--ink); }
+a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbon span { animation: none; padding-left: 0; }
+  #fill { transition-duration: 0.3s; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= ACT I ================= -->
+<div id="stage">
+  <section class="panel opening">Sisyphus<small>Scroll</small></section>
+  <section class="panel">Built on one principle. Consistency.</section>
+  <section class="panel">Every iteration, indistinguishable from the last.</section>
+  <section class="panel">Progress you can depend on.</section>
+  <section class="panel opening" aria-hidden="true">Sisyphus<small>Scroll</small></section>
+</div>
+
+<button id="skip">Skip</button>
+
+<!-- ================= ACT II ================= -->
+<div id="landing">
+  <div id="bar"><div id="fill"></div></div>
+  <div id="status">Recalibrating</div>
+</div>
+
+<!-- ================= ACT III ================= -->
+<main id="site">
+
+  <div class="ribbon">
+    <span>🚧 ~*~ sisyphus ~*~ the second album ~*~ recorded in brooklyn ~*~ thank you for visiting my website ~*~ 🚧 &nbsp;&nbsp;</span>
+  </div>
+
+  <nav class="bar">
+    <a href="#tracklist">tracklist</a>
+    <a href="#status-box">status</a>
+    <a href="/hysteresis">hysteresis</a>
+    <a href="/press">press kit</a>
+    <a href="mailto:hello@ramyaparthipan.com">email</a>
+    <a href="/">home</a>
+  </nav>
+
+  <div class="upper">
+
+    <div class="hub">
+      <div class="core">
+        <h1>sisyphus</h1>
+        <p class="tag">an album about pushing the same thing up the same
+           hill in the same city.</p>
+      </div>
+
+      <ol class="orbit">
+        <li><a href="#t1"><span class="n">01</span><span class="t">untitled xiii</span></a></li>
+        <li><a href="#t2"><span class="n">02</span><span class="t">lobotomy</span></a></li>
+        <li><a href="#t3"><span class="n">03</span><span class="t">imposter</span></a></li>
+        <li class="cut"><a href="#t4"><span class="n">——</span><span class="t">golden</span></a></li>
+        <li><a href="#t5"><span class="n">04</span><span class="t">my mother's a dragon</span></a></li>
+        <li><a href="#t6"><span class="n">05</span><span class="t">bless your heart</span></a></li>
+        <li><a href="#t7"><span class="n">06</span><span class="t">interlude: incel asmr</span></a></li>
+        <li><a href="#t8"><span class="n">07</span><span class="t">unemployed again</span></a></li>
+        <li><a href="#t9"><span class="n">08</span><span class="t">nyc nighttime feeling</span></a></li>
+        <li><a href="#t10"><span class="n">09</span><span class="t">seven times</span></a></li>
+        <li class="cut"><a href="#t11"><span class="n">——</span><span class="t">dancing in the rain</span></a></li>
+        <li class="added"><a href="#t12"><span class="n">10</span><span class="t">h.a.g.s!</span></a></li>
+        <li><a href="#t13"><span class="n">11</span><span class="t">alignment</span></a></li>
+        <li><a href="#t14"><span class="n">12</span><span class="t">what if?</span></a></li>
+        <li><a href="#t15"><span class="n">13</span><span class="t">everything bagel</span></a></li>
+      </ol>
+    </div>
+
+    <aside class="box side" id="status-box">
+      <h2>status</h2>
+      <div class="inner">
+        <p>i fear i cannot stop adding tracks.
+           <span class="stamp">——</span></p>
+        <hr>
+        <p>how do you produce japanese city pop pls send help
+           <span class="stamp">——</span></p>
+        <hr>
+        <p>my current fave is untitled xiii because i'm sentimental
+           <span class="stamp">——</span></p>
+      </div>
+    </aside>
+
+  </div>
+
+  <div class="lower">
+    <section class="box" id="tracklist">
+      <h2>tracklist</h2>
+      <div class="inner">
+
+        <p class="legend">
+          <del>struck</del> = cut &nbsp;·&nbsp;
+          <ins>underlined</ins> = added since &nbsp;·&nbsp;
+          <span class="moved">was 07</span> = moved &nbsp;·&nbsp;
+          click a title for notes
+        </p>
+        <p class="seq">sequence last changed ——</p>
+
+        <ol class="tracks">
+
+          <li id="t1"><details>
+            <summary>untitled xiii</summary>
+            <div class="note">
+              <p class="meta">updated —— · demo</p>
+              <p>current favourite. sentimental reasons.</p>
+            </div>
+          </details></li>
+
+          <li id="t2"><details>
+            <summary>lobotomy</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t3"><details>
+            <summary>imposter</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t4" class="cut"><details>
+            <summary><del>golden</del></summary>
+            <div class="note"><p class="meta">cut ——</p><p>why it went.</p></div>
+          </details></li>
+
+          <li id="t5"><details>
+            <summary>my mother's a dragon</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t6"><details>
+            <summary>bless your heart</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t7"><details>
+            <summary>interlude: incel asmr</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t8"><details>
+            <summary>unemployed again</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t9"><details>
+            <summary>nyc nighttime feeling</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t10"><details>
+            <summary>seven times</summary>
+            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t11" class="cut"><details>
+            <summary><del>dancing in the rain</del></summary>
+            <div class="note"><p class="meta">cut ——</p><p>why it went.</p></div>
+          </details></li>
+
+          <li id="t12" class="added"><details>
+            <summary><ins>h.a.g.s!</ins></summary>
+            <div class="note"><p class="meta">added —— · sketch</p><p>notes.</p></div>
+          </details></li>
+
+          <li id="t13"><details>
+            <summary>alignment</summary>
+            <div class="note">
+              <p class="meta">updated —— · tracking</p>
+              <p>in 7/4. cuts off mid-phrase, so it has to sit directly
+                 before what if?</p>
+            </div>
+          </details></li>
+
+          <li id="t14"><details>
+            <summary>what if?</summary>
+            <div class="note">
+              <p class="meta">updated —— · demo</p>
+              <p>opens on a warm chord.</p>
+            </div>
+          </details></li>
+
+          <li id="t15"><details>
+            <summary>everything bagel</summary>
+            <div class="note">
+              <p class="meta">updated —— · arrangement</p>
+              <p>closer. stays last.</p>
+            </div>
+          </details></li>
+
+          <!-- to mark a move: <summary>title <span class="moved">was 07</span></summary> -->
+
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <div class="ribbon">
+    <span>🚧 this page is under construction ~*~ it always will be ~*~ 🚧 &nbsp;&nbsp;</span>
+  </div>
+
+</main>
+
+<script>
+/* ---- Act I: loop, then land ---- */
+
+var stage   = document.getElementById('stage');
+var skip    = document.getElementById('skip');
+var landing = document.getElementById('landing');
+var fill    = document.getElementById('fill');
+var status  = document.getElementById('status');
+var site    = document.getElementById('site');
+
+var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var TIMES_THROUGH = 2;                     // total traversals, not resets
+var resets = calm ? 0 : TIMES_THROUGH - 1;
+var passes = 0;
+var done   = false;
+
+stage.addEventListener('scroll', function () {
+  if (done) return;
+  var atEnd = stage.scrollTop >= stage.scrollHeight - stage.clientHeight - 2;
+  if (!atEnd) return;
+  if (passes < resets) { passes++; stage.scrollTop = 0; }
+  else { land(); }
+});
+
+skip.addEventListener('click', land);
+
+function land() {
+  if (done) return;
+  done = true;
+  stage.style.display = 'none';
+  skip.style.display  = 'none';
+  landing.classList.add('on');
+  requestAnimationFrame(function () { fill.classList.add('go'); });
+
+  setTimeout(function () {
+    status.textContent = 'One must imagine Sisyphus happy.';
+    status.className = 'punchline';
+  }, calm ? 500 : 2600);
+
+  setTimeout(function () {
+    landing.classList.remove('on');
+    site.classList.add('on');
+    document.body.style.overflow = 'auto';
+    orbit();
+  }, calm ? 1800 : 5200);
+}
+
+/* ---- the arc ----
+   0deg points right, -90 is top, +90 is bottom, -135 is top-left.
+   Sweeping 225deg clockwise from top-left ends at the bottom and
+   leaves the left side of the circle open.
+   The radius is measured from the container, so the discs stay in
+   a circle at any width instead of collapsing into a row. */
+
+var ARC_START = -135;
+var ARC_SWEEP = 225;
+var MIN_WIDTH = 430;      // below this the arc becomes a wrapped row
+
+function orbit() {
+  var hub = document.querySelector('.hub');
+  var items = document.querySelectorAll('.orbit li');
+  var core = document.querySelector('.core');
+  var h1 = document.querySelector('.core h1');
+  if (!hub) return;
+
+  var w = hub.clientWidth;
+
+  if (w < MIN_WIDTH) {                       // fall back to the row
+    hub.classList.remove('arc');
+    hub.style.minHeight = '';
+    core.style.maxWidth = '';
+    h1.style.fontSize = '';
+    for (var j = 0; j < items.length; j++) items[j].style.transform = '';
+    return;
+  }
+
+  hub.classList.add('arc');
+
+  var disc = w < 620 ? 64 : 82;
+  var r    = Math.min(300, (w - disc) / 2 - 8);
+
+  hub.style.setProperty('--disc', disc + 'px');
+  hub.style.setProperty('--r', r + 'px');
+  hub.style.setProperty('--sun', (r * 1.85) + 'px');
+  hub.style.minHeight = (2 * r + disc + 24) + 'px';
+
+  /* keep the title inside the ring */
+  var maxW = Math.min(330, 2 * (r - disc / 2 - 18));
+  core.style.maxWidth = maxW + 'px';
+  h1.style.fontSize = Math.min(52, maxW / 5.4) + 'px';
+
+  var last = items.length - 1;
+  for (var i = 0; i < items.length; i++) {
+    var deg = last ? ARC_START + (i / last) * ARC_SWEEP : ARC_START;
+    items[i].style.transform =
+      'rotate(' + deg + 'deg) translate(' + r + 'px) rotate(' + (-deg) + 'deg)';
+  }
+}
+addEventListener('resize', orbit);
+
+/* clicking a disc opens that track's notes below */
+document.querySelectorAll('.orbit a').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    var li = document.querySelector(a.getAttribute('href'));
+    if (!li) return;
+    e.preventDefault();
+    li.querySelector('details').open = true;
+    li.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' });
+  });
+});
+</script>
+
+</body>
+</html>
