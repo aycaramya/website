@@ -165,6 +165,15 @@ body { margin: 0; overflow: hidden; background: #fff; }
   --r: 200px;
   --sun: 340px;
 }
+/* in arc mode, stack .core and the ring in the same grid cell so they
+   share one true center — otherwise the grid auto-places them into
+   separate rows (the ring's box collapses since its <li>s are
+   absolutely positioned) and the ring's center drifts to sit right
+   under the title, pushing top discs into the subtitle. */
+.hub.arc > .core,
+.hub.arc > .orbit {
+  grid-area: 1 / 1;
+}
 .hub::before {
   content: "";
   position: absolute; left: 50%; top: 50%;
@@ -316,7 +325,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 
   <nav class="bar">
     <a href="#tracklist">tracklist</a>
-    <a href="#status-box">status</a>
+    <a href="#notes-box">notes</a>
     <a href="/hysteresis">hysteresis</a>
     <a href="press/index.html">press kit</a>
     <a href="mailto:hello@ramyaparthipan.com">email</a>
@@ -329,7 +338,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
       <div class="core">
         <h1>sisyphus</h1>
         <p class="tag">an album about pushing the same thing up the same
-           hill in the same city.</p>
+           hill.</p>
       </div>
 
       <ol class="orbit">
@@ -351,8 +360,8 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
       </ol>
     </div>
 
-    <aside class="box side" id="status-box">
-      <h2>status</h2>
+    <aside class="box side" id="notes-box">
+      <h2>notes</h2>
       <div class="inner">
         <p>i fear i cannot stop adding tracks.
            <span class="stamp">——</span></p>
@@ -375,98 +384,128 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
         <p class="legend">
           <del>struck</del> = cut &nbsp;·&nbsp;
           <ins>underlined</ins> = added since &nbsp;·&nbsp;
-          <span class="moved">was 07</span> = moved &nbsp;·&nbsp;
           click a title for notes
         </p>
-        <p class="seq">sequence last changed ——</p>
 
         <ol class="tracks">
 
           <li id="t1"><details>
             <summary>untitled xiii</summary>
             <div class="note">
-              <p class="meta">updated —— · demo</p>
-              <p>current favourite. sentimental reasons.</p>
+              <p class="meta">updated 6/26 · in production</p>
+              <p>the first song I wrote when I got back into songwriting! you may have heard this one live </p>
             </div>
           </details></li>
 
           <li id="t2"><details>
             <summary>lobotomy</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 8/26 · in production</p>
+              <p>it's songs like this that make me unsure what genre of music I actually make. the chorus is me shrieking "give me a lobotomy" over and over. </p>
+            </div>
           </details></li>
 
           <li id="t3"><details>
             <summary>imposter</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 9/26 · writing</p>
+              <p>been listening to Raye's most recent album a lot for inspo on this one. sort of about imposter syndrome but also about a lot of other things.</p>
+            </div>
           </details></li>
 
           <li id="t4" class="cut"><details>
             <summary><del>golden</del></summary>
-            <div class="note"><p class="meta">cut ——</p><p>why it went.</p></div>
+            <div class="note">
+              <p class="meta">cut 7/26</p>
+              <p>I had a lot of ideas for this one but I already wrote a whole album about my brain and my feelings, and the goal with this album is to look a little more outward (even if I'm still using first person pronouns in my writing lol).</p>
+            </div>
           </details></li>
 
           <li id="t5"><details>
             <summary>my mother's a dragon</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 7/26  · in production </p>
+              <p>lyrically my favorite one so far. I'd been wanting to experiment more with abstract lyrics so this was a fun exercise (even if I couldn't stick with it the whole way through)</p>
+            </div>
           </details></li>
 
           <li id="t6"><details>
             <summary>bless your heart</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 8/26 · in production</p>
+              <p>there's not enough music about friend breakups. also the title felt like a nice nod to my southern upbringing</p>
+            </div>
           </details></li>
 
           <li id="t7"><details>
             <summary>interlude: incel asmr</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 8/26 · writing </p>
+              <p>an interlude!! this one should be interesting. i've never made asmr but i'm gonna try my best</p>
+            </div>
           </details></li>
 
           <li id="t8"><details>
             <summary>unemployed again</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 8/26 · writing</p>
+              <p>kicking the coffin open, but sarcastic and jazzy</p>
+            </div>
           </details></li>
 
           <li id="t9"><details>
             <summary>nyc nighttime feeling</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 9/26  · writing</p>
+              <p>I really just wanted to pretend to be a hyperpop artist for a little bit</p>
+            </div>
           </details></li>
 
           <li id="t10"><details>
             <summary>seven times</summary>
-            <div class="note"><p class="meta">updated ——</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">updated 7/26  · in production </p>
+              <p>a love song that's less about the actual love and more about learning to trust myself while dating</p>
+            </div>
           </details></li>
 
           <li id="t11" class="cut"><details>
             <summary><del>dancing in the rain</del></summary>
-            <div class="note"><p class="meta">cut ——</p><p>why it went.</p></div>
+            <div class="note">
+              <p class="meta">cut 5/26</p>
+              <p>ngl I just wasn't feeling it</p>
+            </div>
           </details></li>
 
           <li id="t12" class="added"><details>
             <summary><ins>h.a.g.s!</ins></summary>
-            <div class="note"><p class="meta">added —— · sketch</p><p>notes.</p></div>
+            <div class="note">
+              <p class="meta">added 8/26 · sketch</p>
+              <p>inspired by a trip to austin for my friends' wedding. I suggested this name for a collaborative song and I'm SO glad they didn't use the suggestions so I could use it for myself</p>
+            </div>
           </details></li>
 
           <li id="t13"><details>
             <summary>alignment</summary>
             <div class="note">
-              <p class="meta">updated —— · tracking</p>
-              <p>in 7/4. cuts off mid-phrase, so it has to sit directly
-                 before what if?</p>
+              <p class="meta">updated 8/26 · sketch</p>
+              <p>in 7/4 oh no.</p>
             </div>
           </details></li>
 
           <li id="t14"><details>
             <summary>what if?</summary>
             <div class="note">
-              <p class="meta">updated —— · demo</p>
-              <p>opens on a warm chord.</p>
+              <p class="meta">updated 8/26 · sketch</p>
+              <p>it's really just an idea at the moment, a concept if you will. one of the few songs where my voice will not be big.</p>
             </div>
           </details></li>
 
           <li id="t15"><details>
             <summary>everything bagel</summary>
             <div class="note">
-              <p class="meta">updated —— · arrangement</p>
-              <p>closer. stays last.</p>
+              <p class="meta">updated 9/26 · sketch</p>
+              <p>I am EXCITED for this one if I can just get it right. an ode to nyc, everything everywhere all at once, and my life the past two years</p>
             </div>
           </details></li>
 
