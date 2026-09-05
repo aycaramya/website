@@ -79,6 +79,10 @@ img {
   padding: 0;
 }
 
+.site-nav__soon {
+  color: var(--color-muted);
+}
+
 /* ---- Site footer (shared) ---- */
 
 .site-footer {
