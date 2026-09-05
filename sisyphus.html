@@ -566,11 +566,16 @@ function smallFor(panel, repeat) {
 
 var done = false;
 
-stage.addEventListener('scroll', function () {
-  if (done) return;
-  var atEnd = stage.scrollTop >= stage.scrollHeight - stage.clientHeight - 4;
-  if (atEnd) land();
-});
+/* Watching for the last panel to come into view (rather than doing
+   scrollTop/scrollHeight pixel math) sidesteps mobile quirks — svh
+   rounding, the address bar resizing the viewport mid-scroll, and
+   scroll-snap settling a few pixels short of the "true" end. */
+var lastPanel = stage.lastElementChild;
+new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (entry.isIntersecting) land();
+  });
+}, { root: stage, threshold: 0.85 }).observe(lastPanel);
 
 skip.addEventListener('click', land);
 
