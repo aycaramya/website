@@ -47,8 +47,8 @@ body { margin: 0; overflow: hidden; background: #fff; }
 #stage {
   height: 100svh;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
   scroll-snap-type: y mandatory;
-  scroll-behavior: auto;          /* must stay auto: JS resets scrollTop */
   scrollbar-width: none;
   background: #fff;
 }
@@ -300,13 +300,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 <body>
 
 <!-- ================= ACT I ================= -->
-<div id="stage">
-  <section class="panel opening">Sisyphus<small>Scroll</small></section>
-  <section class="panel">Built on one principle. Consistency.</section>
-  <section class="panel">Every iteration, indistinguishable from the last.</section>
-  <section class="panel">Progress you can depend on.</section>
-  <section class="panel opening" aria-hidden="true">Sisyphus<small>Scroll</small></section>
-</div>
+<div id="stage"></div>
 
 <button id="skip">Skip</button>
 
@@ -523,7 +517,12 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 </main>
 
 <script>
-/* ---- Act I: loop, then land ---- */
+/* ---- Act I: repeated panels, then land ----
+   PANELS is one pass through the message; REPEATS is how many times
+   it plays before redirecting (reduced-motion gets a single pass).
+   The panels are literally duplicated into the page rather than
+   looped by resetting scrollTop, so it's just normal scrolling —
+   nothing fights the browser's momentum scroll on mobile. */
 
 var stage   = document.getElementById('stage');
 var skip    = document.getElementById('skip');
@@ -534,17 +533,44 @@ var site    = document.getElementById('site');
 
 var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-var TIMES_THROUGH = 2;                     // total traversals, not resets
-var resets = calm ? 0 : TIMES_THROUGH - 1;
-var passes = 0;
-var done   = false;
+/* `small` can be a single string (same every repeat) or an array
+   with one entry per repeat — if there are more repeats than
+   entries, the last one keeps being reused. */
+var PANELS = [
+  { opening: true, text: 'Sisyphus', small: ['Scroll', 'Keep scrolling ;)'] },
+  { text: 'Built on one principle. Consistency.', small: ['Scroll', 'Keep scrolling ;)'] },
+  { text: 'Every iteration, indistinguishable from the last.', small: ['Scroll', 'Keep scrolling ;)'] },
+  { text: 'Progress you can depend on.', small: ['Scroll', 'Your compliance will be rewarded'] }
+];
+var REPEATS = calm ? 1 : 2;
+
+function smallFor(panel, repeat) {
+  if (!panel.small) return '';
+  var text = Array.isArray(panel.small)
+    ? panel.small[Math.min(repeat, panel.small.length - 1)]
+    : panel.small;
+  return '<small>' + text + '</small>';
+}
+
+(function buildStage() {
+  var html = '';
+  for (var r = 0; r < REPEATS; r++) {
+    for (var p = 0; p < PANELS.length; p++) {
+      var panel = PANELS[p];
+      html += '<section class="panel' + (panel.opening ? ' opening' : '') + '">' +
+              panel.text + smallFor(panel, r) +
+              '</section>';
+    }
+  }
+  stage.innerHTML = html;
+})();
+
+var done = false;
 
 stage.addEventListener('scroll', function () {
   if (done) return;
-  var atEnd = stage.scrollTop >= stage.scrollHeight - stage.clientHeight - 2;
-  if (!atEnd) return;
-  if (passes < resets) { passes++; stage.scrollTop = 0; }
-  else { land(); }
+  var atEnd = stage.scrollTop >= stage.scrollHeight - stage.clientHeight - 4;
+  if (atEnd) land();
 });
 
 skip.addEventListener('click', land);
