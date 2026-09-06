@@ -74,14 +74,25 @@ body { margin: 0; overflow: hidden; background: #fff; }
   display: block; margin-top: 2.2rem;
   font-size: 0.78rem; letter-spacing: 0.06em; color: #9a9a9a;
 }
+.panel .chev {
+  display: block; margin: 0.6rem auto 0;
+  font-size: 1.1rem; line-height: 1; color: #9a9a9a;
+  animation: chevBounce 1.6s ease-in-out infinite;
+}
+@keyframes chevBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
 
 #skip {
   position: fixed; right: 1.4rem; bottom: 1.4rem; z-index: 5;
+  max-width: min(230px, 60vw);
   border: 0; background: none; cursor: pointer;
-  font: 400 0.76rem/1 var(--clinical);
-  letter-spacing: 0.06em; color: #b4b4b4; padding: 0.6rem;
+  font: 600 0.74rem/1.35 var(--clinical);
+  letter-spacing: 0.02em; text-align: right;
+  color: var(--ember); padding: 1rem;
 }
-#skip:hover, #skip:focus-visible { color: #111; }
+#skip:hover, #skip:focus-visible { color: var(--ink); }
 
 #social-cold {
   position: fixed; left: 1.4rem; bottom: 1.4rem; z-index: 5;
@@ -106,7 +117,7 @@ body { margin: 0; overflow: hidden; background: #fff; }
 #landing.on { display: grid; }
 
 #bar { width: min(230px, 54vw); height: 2px; background: #e6e6e6; margin-bottom: 1.6rem; overflow: hidden; }
-#fill { height: 100%; width: 0; background: #111; transition: width 2.4s cubic-bezier(.2,.7,.3,1); }
+#fill { height: 100%; width: 0; background: #111; transition: width 1.6s cubic-bezier(.2,.7,.3,1); }
 #fill.go { width: 100%; }
 
 #status { min-height: 1.2em; }
@@ -116,6 +127,14 @@ body { margin: 0; overflow: hidden; background: #fff; }
   font-size: clamp(1.05rem, 3.4vw, 1.6rem);
   letter-spacing: 0; color: #111;
 }
+
+#tap-hint {
+  margin-top: 1.4rem;
+  font: 400 0.72rem/1 var(--clinical);
+  letter-spacing: 0.06em; color: #b4b4b4;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+#tap-hint.show { opacity: 1; }
 
 /* ---------------- ACT III ---------------- */
 
@@ -327,6 +346,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .ribbon span { animation: none; padding-left: 0; }
   #fill { transition-duration: 0.3s; }
+  .panel .chev { animation: none; opacity: 0.7; }
 }
 </style>
 </head>
@@ -336,7 +356,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 <!-- ================= ACT I ================= -->
 <div id="stage"></div>
 
-<button id="skip">Skip</button>
+<button id="skip">I'm trying to make a statement here, but if you're already bored, click here.</button>
 
 <div id="social-cold">
   <a href="https://instagram.com/ay.caramya" target="_blank" rel="noopener" aria-label="Instagram">
@@ -378,6 +398,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 <div id="landing">
   <div id="bar"><div id="fill"></div></div>
   <div id="status">Recalibrating</div>
+  <div id="tap-hint">tap to continue</div>
 </div>
 
 <!-- ================= ACT III ================= -->
@@ -673,7 +694,7 @@ function smallFor(panel, repeat) {
   var text = Array.isArray(panel.small)
     ? panel.small[Math.min(repeat, panel.small.length - 1)]
     : panel.small;
-  return '<small>' + text + '</small>';
+  return '<small>' + text + '<span class="chev" aria-hidden="true">&#9662;</span></small>';
 }
 
 (function buildStage() {
@@ -690,6 +711,10 @@ function smallFor(panel, repeat) {
 })();
 
 var done = false;
+var revealed = false;
+var punchlineShown = false;
+var revealTimer = null;
+var tapHint = document.getElementById('tap-hint');
 
 /* Watching for the last panel to come into view (rather than doing
    scrollTop/scrollHeight pixel math) sidesteps mobile quirks — svh
@@ -702,7 +727,16 @@ new IntersectionObserver(function (entries) {
   });
 }, { root: stage, threshold: 0.85 }).observe(lastPanel);
 
-skip.addEventListener('click', land);
+skip.addEventListener('click', skipToSite);
+
+function skipToSite() {
+  if (done) return;
+  done = true;
+  stage.style.display = 'none';
+  skip.style.display  = 'none';
+  social.style.display = 'none';
+  reveal();
+}
 
 function land() {
   if (done) return;
@@ -716,15 +750,27 @@ function land() {
   setTimeout(function () {
     status.textContent = 'One must imagine Sisyphus happy.';
     status.className = 'punchline';
-  }, calm ? 500 : 2600);
+    punchlineShown = true;
+    tapHint.classList.add('show');
+    landing.style.cursor = 'pointer';
+  }, calm ? 500 : 1800);
 
-  setTimeout(function () {
-    landing.classList.remove('on');
-    site.classList.add('on');
-    document.body.style.overflow = 'auto';
-    orbit();
-  }, calm ? 1800 : 5200);
+  revealTimer = setTimeout(reveal, calm ? 1500 : 3400);
 }
+
+function reveal() {
+  if (revealed) return;
+  revealed = true;
+  clearTimeout(revealTimer);
+  landing.classList.remove('on');
+  site.classList.add('on');
+  document.body.style.overflow = 'auto';
+  orbit();
+}
+
+landing.addEventListener('click', function () {
+  if (punchlineShown) reveal();
+});
 
 /* ---- the arc ----
    0deg points right, -90 is top, +90 is bottom, -135 is top-left.
