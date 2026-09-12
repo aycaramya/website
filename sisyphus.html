@@ -37,6 +37,9 @@
   --heavy: "Arial Black", Impact, Haettenschweiler, sans-serif;
   --mono: "Courier New", monospace;
   --clinical: -apple-system, "Helvetica Neue", Inter, Arial, sans-serif;
+  --hand: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+
+  --rule-h: 26px;
 }
 
 * { box-sizing: border-box; }
@@ -262,6 +265,40 @@ ol.orbit li.cut a { background: #f1efec; border-style: dashed; }
 ol.orbit li.cut .t { text-decoration: line-through; text-decoration-color: var(--rose); color: var(--grey); }
 ol.orbit li.added a { border-color: var(--amber); border-width: 4px; }
 
+/* a post-it arrow flag pointing at track 01 (untitled xiii) — anchored
+   with the same rotate/translate/rotate math the ring itself uses for
+   that disc (deg = ARC_START), so it tracks the arc as it resizes. */
+.flag-note {
+  display: none;
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0; height: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.hub.arc .flag-note {
+  display: block;
+  transform: rotate(-135deg) translate(var(--r)) rotate(135deg);
+}
+.flag-note p {
+  position: absolute;
+  right: calc(var(--disc) / 2 + 4px);
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  transform-origin: right center;
+  margin: 0;
+  width: 168px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  clip-path: polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%);
+  padding: 8px 34px 8px 10px;
+  font-family: var(--era);
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--ink);
+  filter: drop-shadow(2px 3px 1px rgba(16,16,18,.3));
+}
+
 /* ---- boxes ---- */
 
 .box { background: #fff; border: 2px solid var(--ink); }
@@ -271,6 +308,97 @@ ol.orbit li.added a { border-color: var(--amber); border-width: 4px; }
   padding: 6px 10px;
 }
 .box > .inner { padding: 10px 12px 14px; }
+
+/* ---- notebook (tracklist / intro / journal / bibliography) ---- */
+
+#tracklist.notebook > .inner { padding: 0; }
+
+.notebook-body { position: relative; display: flex; align-items: stretch; }
+
+.notebook-holes {
+  flex: none; width: 28px;
+  display: flex; flex-direction: column; justify-content: space-evenly;
+  align-items: center; padding: 16px 0;
+  background: linear-gradient(90deg, rgba(16,16,18,.05), transparent);
+  border-right: 1px dashed rgba(16,16,18,.2);
+}
+.notebook-holes span {
+  width: 13px; height: 13px; border-radius: 50%; flex: none;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: inset 1px 1px 2px rgba(16,16,18,.4);
+}
+
+.notebook-pages { flex: 1 1 auto; min-width: 0; position: relative; }
+
+.page { display: none; padding: 14px 14px 16px 16px; }
+.page.active {
+  display: block;
+  animation: pageIn 0.28s ease;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.notebook-tabs {
+  flex: none; width: 84px;
+  display: flex; flex-direction: column;
+  border-left: 1px dashed rgba(16,16,18,.2);
+}
+.notebook-tabs button {
+  flex: 1 1 0; min-height: 40px;
+  border: 0; border-bottom: 2px solid var(--ink);
+  cursor: pointer;
+  font: 700 10px/1.25 var(--era);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 4px 5px;
+}
+.notebook-tabs button:last-child { border-bottom: 0; }
+.notebook-tabs button:hover, .notebook-tabs button:focus-visible { filter: brightness(0.93); outline: none; }
+.notebook-tabs button[data-page="intro"]        { background: var(--yellow); }
+.notebook-tabs button[data-page="tracklist"]    { background: var(--amber); }
+.notebook-tabs button[data-page="journal"]      { background: var(--ember); color: var(--paper); }
+.notebook-tabs button[data-page="bibliography"] { background: var(--rose);  color: var(--paper); }
+.notebook-tabs button.active { filter: brightness(0.88); text-decoration-thickness: 3px; }
+
+/* ruled writing-paper look shared by intro / journal / bibliography */
+.ruled {
+  position: relative;
+  line-height: var(--rule-h);
+  background-image: repeating-linear-gradient(to bottom,
+      transparent 0, transparent calc(var(--rule-h) - 1px),
+      rgba(60,95,170,.35) calc(var(--rule-h) - 1px), rgba(60,95,170,.35) var(--rule-h));
+  background-position: 0 14px;
+}
+.ruled::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 20px; width: 1px;
+  background: rgba(196,69,107,.45);
+}
+.ruled p, .ruled li {
+  margin: 0; padding-left: 28px;
+  font-family: var(--hand);
+  font-size: 15px; text-transform: none;
+  color: #26356a;
+}
+.ruled ul { list-style: none; margin: 0; padding: 0; }
+.ruled li::before { content: "\2014"; margin-right: 6px; color: var(--ember); }
+.ruled .cite em { font-style: italic; }
+
+@media (max-width: 560px) {
+  .notebook-body { flex-direction: column; }
+  .notebook-holes { display: none; }
+  .notebook-tabs {
+    order: -1; flex-direction: row; width: auto;
+    border-left: 0; border-bottom: 1px dashed rgba(16,16,18,.2);
+  }
+  .notebook-tabs button { border-bottom: 0; border-right: 2px solid var(--ink); }
+  .notebook-tabs button:last-child { border-right: 0; }
+}
 
 .side-col { display: flex; flex-direction: column; gap: 14px; }
 
@@ -443,6 +571,10 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
         <li class="added"><a href="#t14"><span class="n">12</span><span class="t">what if?</span></a></li>
         <li><a href="#t15"><span class="n">13</span><span class="t">everything bagel</span></a></li>
       </ol>
+
+      <div class="flag-note">
+        <p> working song titles for sisyphus! click on a track to learn more!</p>
+      </div>
     </div>
 
     <div class="side-col">
@@ -460,9 +592,6 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
              <span class="stamp">——</span></p>
           <hr>
           <p>how do you produce japanese city pop pls send help
-             <span class="stamp">——</span></p>
-          <hr>
-          <p>my current fave is untitled xiii because I'm sentimental
              <span class="stamp">——</span></p>
         </div>
       </aside>
@@ -518,19 +647,33 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
   </div>
 
   <div class="lower">
-    <section class="box" id="tracklist">
-      <h2>tracklist</h2>
+    <section class="box notebook" id="tracklist">
+      <h2 id="notebook-title">tracklist</h2>
       <div class="inner">
+        <div class="notebook-body">
 
-        <p class="legend">
-          <del>struck</del> = cut &nbsp;·&nbsp;
-          <ins>underlined</ins> = added since &nbsp;·&nbsp;
-          click a title for notes
-        </p>
+          <div class="notebook-holes" aria-hidden="true"><span></span><span></span><span></span></div>
 
-        <ol class="tracks">
+          <div class="notebook-pages">
 
-          <li id="t1"><details>
+            <div class="page ruled" id="page-intro">
+              <p>The first time I read the artist's way by julia cameron, it ended with me writing an EP and performing some of the songs with a band. I tried rereading it a couple years later but couldn't stick with it, and then couldn't stick with it again a few months later. I guess something clicked recently cause I'm on my 4th attempt and I decided to make this page halfway through week 1.</p>
+              <br>
+              <p>I've been asked a few times what my album writing process looks like, and I've never really known how to accurately describe it, so this is my latest attempt to try and do so.</p>
+              <br>
+              <p>I don't really like julia cameron's writing style but her book also changed my life and both of those things can be true.</p>
+            </div>
+
+            <div class="page active" id="page-tracklist">
+
+              <p class="legend">
+                <del>struck</del> = cut &nbsp;·&nbsp;
+                <ins>underlined</ins> = added since &nbsp;·&nbsp;
+              </p>
+
+              <ol class="tracks">
+
+                <li id="t1"><details>
             <summary>untitled xiii</summary>
             <div class="note">
               <p class="meta">updated 6/26 · in production</p>
@@ -550,7 +693,7 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
             <summary>imposter</summary>
             <div class="note">
               <p class="meta">updated 9/26 · writing</p>
-              <p>been listening to Raye's most recent album a lot for inspo on this one. sort of about imposter syndrome but also about a lot of other things.</p>
+              <p>sort of about imposter syndrome but also about a lot of other things. will it be R&B or gospel or a surprise third thing?</p>
             </div>
           </details></li>
 
@@ -638,7 +781,8 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
             <summary><ins>what if?</ins></summary>
             <div class="note">
               <p class="meta">updated 8/26 · sketch</p>
-              <p>it's really just an idea at the moment, a concept if you will. one of the few songs where my voice will not be big. inspired by a psalm for the wild-built by becky chambers.</p>
+              <p>it's really just an idea at the moment, a concept if you will. one of the few songs where my voice will not be big.</p>
+              <p>inspired by a psalm for the wild-built by becky chambers.</p>
             </div>
           </details></li>
 
@@ -652,7 +796,40 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 
           <!-- to mark a move: <summary>title <span class="moved">was 07</span></summary> -->
 
-        </ol>
+              </ol>
+            </div>
+
+            <div class="page ruled" id="page-journal">
+              <ul>
+                <li>9/11/26 - had the idea to link github commits for this site to x/threads/bluesky but apparently with x it'd cost like $100 a year (boo elon) and with meta it'd take a month of approvals (boo zuck) so if I do this it will be with bluesky (the people's princess)</li>
+                <li>7/x/26 - trying to learn how japanese city pop production actually works instead of just vibing at it</li>
+              </ul>
+            </div>
+
+            <div class="page ruled" id="page-bibliography">
+              <p>not all of these have made or will make the final cut, but they were all important parts of the journey!</p>
+              <ul>
+                <li class="cite"><a href="https://en.wikipedia.org/wiki/The_Myth_of_Sisyphus" target="_blank" rel="noopener"><u>"the myth of sisyphus"</u></a> by albert camus (obv)</li>
+                <li class="cite"><a href="https://en.wikipedia.org/wiki/Yeh_Jawaani_Hai_Deewani" target="_blank" rel="noopener"><u>yeh jawaani hai deewani</u></a></li>
+                <li class="cite"><a href="https://en.wikipedia.org/wiki/A_Psalm_for_the_Wild-Built" target="_blank" rel="noopener"><u>psalm for the wild-built</u></a> by becky chambers</li>
+                <li class="cite">a compilation of multiple days in the city with a friend of mine (link not available)</li>
+                <li class="cite">"<a href="https://time.com/article/2026/09/10/ai-openai-hugging-face-hack-culture-swarm/" target="_blank" rel="noopener">ai is developing a culture of its own. that could be dangerous</a>" by tharin pillay</li>
+                <li class="cite"><a href="https://en.wikipedia.org/wiki/Severance_(novel)" target="_blank" rel="noopener"><u>severance</u></a> (and more specifically "fuzhou nighttime feeling") by ling ma</li>
+                <li class="cite"><a href="https://en.wikipedia.org/wiki/Beautyland" target="_blank" rel="noopener"><u>beautyland</u></a> by marie-helene bertino</li>
+                <li class="cite"><a href="https://clarkesworldmagazine.com/kritzer_05_23/" target="_blank" rel="noopener"><u>"better living through algorithms"</u></a> by naomi kritzer</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="notebook-tabs">
+            <button type="button" data-page="intro">intro</button>
+            <button type="button" data-page="tracklist" class="active">tracklist</button>
+            <button type="button" data-page="journal">journal</button>
+            <button type="button" data-page="bibliography">bibliography</button>
+          </div>
+
+        </div>
       </div>
     </section>
   </div>
@@ -828,12 +1005,28 @@ function orbit() {
 }
 addEventListener('resize', orbit);
 
-/* clicking a disc opens that track's notes below */
+/* ---- notebook tabs: intro / tracklist / journal / bibliography ---- */
+var notebookTabs  = document.querySelectorAll('.notebook-tabs button');
+var notebookPages = document.querySelectorAll('.notebook-pages .page');
+var notebookTitle = document.getElementById('notebook-title');
+
+function activateNotebookPage(name) {
+  notebookTabs.forEach(function (b) { b.classList.toggle('active', b.dataset.page === name); });
+  notebookPages.forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + name); });
+  if (notebookTitle) notebookTitle.textContent = name;
+}
+
+notebookTabs.forEach(function (b) {
+  b.addEventListener('click', function () { activateNotebookPage(b.dataset.page); });
+});
+
+/* clicking a disc switches to the tracklist tab and opens that track's notes */
 document.querySelectorAll('.orbit a').forEach(function (a) {
   a.addEventListener('click', function (e) {
     var li = document.querySelector(a.getAttribute('href'));
     if (!li) return;
     e.preventDefault();
+    activateNotebookPage('tracklist');
     li.querySelector('details').open = true;
     li.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' });
   });
