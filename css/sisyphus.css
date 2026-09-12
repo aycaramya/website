@@ -271,6 +271,13 @@ ol.orbit li.added a { border-color: var(--amber); border-width: 4px; }
   display: block;
   transform: rotate(-135deg) translate(var(--r)) rotate(135deg);
 }
+/* below this width the hub is too narrow for the flag's 168px arm to
+   clear the screen edge, so most of its text gets clipped off-canvas —
+   hide it until the 2-column layout (see .upper's 720px breakpoint)
+   gives it room. */
+@media (max-width: 720px) {
+  .hub.arc .flag-note { display: none; }
+}
 .flag-note p {
   position: absolute;
   right: calc(var(--disc) / 2 + 4px);
