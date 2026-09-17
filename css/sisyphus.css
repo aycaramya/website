@@ -185,7 +185,7 @@ body { margin: 0; overflow: hidden; background: #fff; }
   display: grid;
   place-items: center;
   padding: 18px 0 6px;
-  --disc: 76px;
+  --disc: 84px;
   --r: 200px;
   --sun: 340px;
 }
@@ -238,23 +238,68 @@ ol.orbit li { width: var(--disc); height: var(--disc); }
   margin: calc(var(--disc) / -2) 0 0 calc(var(--disc) / -2);
 }
 
+/* each track disc is styled like a little vinyl record: grooves
+   underneath (::before), a paper label on top holding the track
+   info (::after, with a tiny spindle hole baked into its own
+   gradient), and the number/title floating above both. */
 ol.orbit a {
   display: grid; place-content: center;
   width: 100%; height: 100%;
+  position: relative;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ink);
   border: 2px solid var(--ink);
   text-align: center; text-decoration: none;
   color: var(--ink);
-  padding: 5px;
+  padding: 10px;
 }
-ol.orbit a:hover, ol.orbit a:focus-visible { background: var(--amber); outline: none; }
+ol.orbit a::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,.10) 0, rgba(255,255,255,.10) 1px,
+      transparent 1px, transparent 4px),
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,.22), transparent 52%),
+    var(--ink);
+}
+/* a fixed (not %) rim keeps the visible groove band the same width at
+   any disc size, so the label — and the safe area for the text sitting
+   on it — stays generously large even on the small mobile disc. */
+ol.orbit a::after {
+  content: "";
+  position: absolute; inset: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ink) 0 4%, #fff 4% 100%);
+  border: 1.5px solid var(--ink);
+  transition: background 0.15s ease;
+}
+ol.orbit .n, ol.orbit .t { position: relative; z-index: 1; }
 ol.orbit .n { display: block; font-family: var(--mono); font-size: 10px; color: var(--grey); }
 ol.orbit .t { display: block; font-size: 9px; font-weight: bold; line-height: 1.2; overflow-wrap: anywhere; }
 
-ol.orbit li.cut a { background: #f1efec; border-style: dashed; }
+ol.orbit a:hover::before, ol.orbit a:focus-visible::before {
+  animation: vinylSpin 2.4s linear infinite;
+}
+ol.orbit a:hover::after, ol.orbit a:focus-visible::after {
+  background: radial-gradient(circle, var(--ink) 0 4%, var(--amber) 4% 100%);
+  outline: none;
+}
+@keyframes vinylSpin { to { transform: rotate(360deg); } }
+
+ol.orbit li.cut a::before {
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,.06) 0, rgba(255,255,255,.06) 1px,
+      transparent 1px, transparent 4px),
+    #57575c;
+}
+ol.orbit li.cut a::after { background: radial-gradient(circle, var(--grey) 0 4%, #f1efec 4% 100%); }
+ol.orbit li.cut a { border-style: dashed; }
 ol.orbit li.cut .t { text-decoration: line-through; text-decoration-color: var(--rose); color: var(--grey); }
 ol.orbit li.added a { border-color: var(--amber); border-width: 4px; }
+ol.orbit li.added a::after { box-shadow: 0 0 0 2px var(--amber) inset; }
 
 /* a post-it arrow flag pointing at track 01 (untitled xiii) — anchored
    with the same rotate/translate/rotate math the ring itself uses for
@@ -556,4 +601,5 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
   .ribbon span { animation: none; padding-left: 0; }
   #fill { transition-duration: 0.3s; }
   .panel .chev { animation: none; opacity: 0.7; }
+  ol.orbit a:hover::before, ol.orbit a:focus-visible::before { animation: none; }
 }

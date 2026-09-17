@@ -111,13 +111,13 @@ landing.addEventListener('click', function () {
 
 /* ---- the arc ----
    0deg points right, -90 is top, +90 is bottom, -135 is top-left.
-   Sweeping 225deg clockwise from top-left ends at the bottom and
-   leaves the left side of the circle open.
+   Sweeping 260deg clockwise from top-left ends past the bottom and
+   leaves a gap on the left side of the circle open.
    The radius is measured from the container, so the discs stay in
    a circle at any width instead of collapsing into a row. */
 
 var ARC_START = -135;
-var ARC_SWEEP = 225;
+var ARC_SWEEP = 260;
 var MIN_WIDTH = 430;      // below this the arc becomes a wrapped row
 
 function orbit() {
@@ -140,7 +140,7 @@ function orbit() {
 
   hub.classList.add('arc');
 
-  var disc = w < 620 ? 64 : 82;
+  var disc = w < 620 ? 74 : 94;
   var r    = Math.min(300, (w - disc) / 2 - 8);
 
   hub.style.setProperty('--disc', disc + 'px');
