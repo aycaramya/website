@@ -4,26 +4,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ramya Parthipan</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/sisyphus.css">
+  <link rel="stylesheet" href="css/dvd.css">
 </head>
-<body>
+<body class="dvd-body">
 
-  <header>
-    <nav class="site-nav">
-      <a class="site-nav__brand" href="index.html">Ramya Parthipan</a>
-      <ul class="site-nav__links">
-        <li class="site-nav__soon">Coming soon!</li>
-      </ul>
-    </nav>
-  </header>
+<div class="tv-frame">
+  <div class="tv-screen">
 
-  <main>
-    <!-- Homepage content goes here — left blank on purpose until the design is decided. -->
-  </main>
+    <div class="scanlines" aria-hidden="true"></div>
 
-  <footer class="site-footer">
-    <p>&copy; 2026 Ramya Parthipan</p>
-  </footer>
+    <main class="dvd-menu">
+      <div class="dvd-title">
+        <h1>ramya parthipan</h1>
+        <p class="dvd-tag">root menu</p>
+      </div>
+
+      <nav class="scene-select" id="sceneSelect" aria-label="main menu">
+        <a href="sisyphus.html" class="scene is-active" data-i="0">
+          <span class="scene-cursor" aria-hidden="true">▶</span>
+          <span class="scene-num">scene 01</span>
+          <span class="scene-disc" aria-hidden="true"></span>
+          <span class="scene-title">sisyphus</span>
+        </a>
+        <a href="https://album.link/hysteresis" class="scene" data-i="1">
+          <span class="scene-cursor" aria-hidden="true">▶</span>
+          <span class="scene-num">scene 02</span>
+          <span class="scene-disc" aria-hidden="true"></span>
+          <span class="scene-title">hysteresis</span>
+        </a>
+        <a href="https://elasticstage.com/soundcloud/releases/ramya-hysteresis-album" class="scene" data-i="2">
+          <span class="scene-cursor" aria-hidden="true">▶</span>
+          <span class="scene-num">scene 03</span>
+          <span class="scene-disc" aria-hidden="true"></span>
+          <span class="scene-title">vinyl</span>
+        </a>
+        <a href="contact.html" class="scene" data-i="3">
+          <span class="scene-cursor" aria-hidden="true">▶</span>
+          <span class="scene-num">scene 04</span>
+          <span class="scene-disc" aria-hidden="true"></span>
+          <span class="scene-title">contact</span>
+        </a>
+      </nav>
+
+      <p class="dvd-hint">↑ ↓ to navigate · enter to select · or click/tap </p>
+    </main>
+
+    <div class="dvd-disc-info">dvd-9 · region free · stereo · © 2026 ramya parthipan</div>
+
+  </div>
+</div>
+
+<script src="js/index.js"></script>
 
 </body>
 </html>

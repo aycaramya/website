@@ -1,0 +1,231 @@
+/* ===========================================================
+   INDEX — "root menu"
+   A 2000s DVD scene-selection screen. Shares palette/type with
+   sisyphus.css (loaded first) but runs its own dark TV-screen
+   chrome instead of the paper/scrapbook look.
+
+   NAVIGATION
+   Arrow keys move the highlighted scene, Enter/click selects it
+   (see js/index.js). Add a scene by adding a matching <a class="scene">.
+   =========================================================== */
+
+html, body.dvd-body {
+  height: 100%;
+  margin: 0;
+}
+
+body.dvd-body {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  overflow: auto;
+  padding: 4vh 4vw;
+  background:
+    radial-gradient(circle at 50% 30%, #1c1c20 0%, #050506 70%);
+  font-family: var(--era);
+}
+
+.tv-frame {
+  width: min(720px, 100%);
+  background: linear-gradient(180deg, #3a3a3f, #201f22);
+  border-radius: 18px;
+  padding: 18px 18px 26px;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.tv-frame::after {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,.28);
+}
+
+.tv-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--ink);
+  box-shadow: inset 0 0 0 2px #000, inset 0 0 40px rgba(0,0,0,.8);
+  padding: 0 0 22px;
+}
+
+.scanlines, .vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.18) 0px, rgba(0,0,0,.18) 1px,
+    transparent 1px, transparent 3px
+  );
+  mix-blend-mode: multiply;
+}
+.vignette {
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* ---- warning ribbon (reuses .ribbon from sisyphus.css) ---- */
+
+.dvd-ribbon {
+  position: relative;
+  z-index: 2;
+  border-top: 0;
+}
+
+/* ---- menu ---- */
+
+.dvd-menu {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 34px 20px 0;
+  text-align: center;
+}
+
+.dvd-title h1 {
+  margin: 0;
+  font-family: var(--heavy);
+  text-transform: uppercase;
+  font-size: clamp(1.7rem, 7vw, 2.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+  text-shadow: 0.035em 0.035em 0 var(--amber), 0.07em 0.07em 0 var(--ember);
+}
+
+.dvd-tag {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+.dvd-tag::before, .dvd-tag::after { content: "· "; }
+.dvd-tag::after { content: " ·"; }
+
+/* ---- scene select ---- */
+
+.scene-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 26px 0 0;
+  text-align: left;
+}
+
+.scene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 30px;
+  border: 2px solid rgba(244,243,240,.35);
+  background: rgba(244,243,240,.04);
+  color: var(--paper);
+  text-decoration: none;
+  text-transform: lowercase;
+  font-family: var(--era);
+}
+.scene:hover { background: rgba(244,243,240,.04); color: var(--paper); }
+
+.scene-cursor {
+  position: absolute;
+  left: 8px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--yellow);
+  opacity: 0;
+}
+
+.scene-num {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--grey);
+  min-width: 4.5em;
+}
+
+.scene-disc {
+  flex: none;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,.10) 0, rgba(255,255,255,.10) 1px,
+      transparent 1px, transparent 3px),
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,.22), transparent 52%),
+    #000;
+  border: 1.5px solid rgba(244,243,240,.4);
+  position: relative;
+}
+.scene-disc::after {
+  content: "";
+  position: absolute; inset: 9px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 1px solid rgba(244,243,240,.5);
+}
+
+.scene-title {
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.scene.is-active {
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 22%, transparent);
+  box-shadow: 3px 4px 0 rgba(0,0,0,.5);
+}
+.scene.is-active .scene-cursor {
+  opacity: 1;
+  animation: cursorNudge 0.9s ease-in-out infinite;
+}
+.scene.is-active .scene-num { color: var(--yellow); }
+.scene:focus-visible { outline: none; }
+
+@keyframes cursorNudge {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50%      { transform: translateY(-50%) translateX(3px); }
+}
+
+.dvd-hint {
+  margin: 22px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(244,243,240,.4);
+}
+
+.dvd-disc-info {
+  position: relative;
+  z-index: 2;
+  margin: 20px auto 0;
+  max-width: 480px;
+  padding: 10px 20px 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: rgba(244,243,240,.32);
+  border-top: 1px dashed rgba(244,243,240,.18);
+}
+
+@media (max-width: 420px) {
+  .scene { padding-left: 26px; }
+  .scene-num { min-width: 3.6em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene.is-active .scene-cursor { animation: none; }
+}
