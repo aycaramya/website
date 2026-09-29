@@ -34,6 +34,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; overflow: hidden; background: #fff; }
+body.standalone { overflow: auto; }
 
 /* ---------------- ACT I ---------------- */
 
@@ -131,8 +132,7 @@ body { margin: 0; overflow: hidden; background: #fff; }
 
 /* ---------------- ACT III ---------------- */
 
-#site {
-  display: none;
+#site, .page-shell {
   min-height: 100svh;
   background:
     repeating-linear-gradient(0deg, rgba(16,16,18,.055) 0 1px, transparent 1px 46px),
@@ -144,6 +144,7 @@ body { margin: 0; overflow: hidden; background: #fff; }
   line-height: 1.6;
   text-transform: lowercase;
 }
+#site { display: none; }
 #site.on { display: block; }
 
 .ribbon {
