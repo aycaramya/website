@@ -38,6 +38,38 @@
   flex-shrink: 0;
 }
 
+/* ---- Placeholder blocks (photos / media not yet supplied) ---- */
+
+.epk-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  background: #f9f9f9;
+  border: 1px dashed var(--color-border);
+}
+
+.epk-media-placeholder {
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+}
+
+/* ---- Print-only fallbacks (shown in the PDF in place of live embeds) ---- */
+
+.epk-printonly {
+  display: none;
+}
+
+.epk-print-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
 .epk-hero__name {
   font-size: 2.5rem;
   margin: 0 0 var(--space-1);
@@ -207,4 +239,38 @@
 .epk-button:hover {
   opacity: 0.85;
   text-decoration: none;
+}
+
+/* ---- Print (used both for browser printing and PDF export) ---- */
+
+@media print {
+  @page {
+    size: letter;
+    margin: 0.6in;
+  }
+
+  .epk-noprint {
+    display: none !important;
+  }
+
+  .epk-printonly {
+    display: block;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+
+  .epk-section {
+    padding: var(--space-2) 0;
+    break-inside: avoid;
+  }
+
+  .epk-hero {
+    padding: 0 0 var(--space-2);
+  }
+
+  a {
+    color: var(--color-text);
+  }
 }
