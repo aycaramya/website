@@ -167,6 +167,18 @@ body.standalone { overflow: auto; }
 }
 .bar a:hover, .bar a:focus-visible { background: var(--amber); outline: none; }
 
+.bar a.sparkle::before, .bar a.sparkle::after {
+  content: "\2728";
+  display: inline-block;
+  margin: 0 4px;
+  animation: twinkle 1.6s ease-in-out infinite;
+}
+.bar a.sparkle::after { animation-delay: 0.5s; }
+@keyframes twinkle {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.3; }
+}
+
 /* ---- the hub ---- */
 
 .upper {
@@ -602,13 +614,16 @@ ol.tracks > li.cut { counter-increment: none; }   /* cut songs don't take a numb
 
 #contact-form { display: flex; flex-direction: column; gap: 8px; max-width: 420px; }
 #contact-form input,
+#contact-form select,
 #contact-form textarea {
   font-family: var(--mono); font-size: 12px;
   padding: 8px 10px; border: 2px solid var(--ink);
   background: #fff; color: var(--ink);
 }
+#contact-form select { border-radius: 0; cursor: pointer; }
 #contact-form textarea { min-height: 90px; resize: vertical; }
 #contact-form input:focus-visible,
+#contact-form select:focus-visible,
 #contact-form textarea:focus-visible { outline: 2px solid var(--ember); outline-offset: 1px; }
 
 #contact-form button[type="submit"] {

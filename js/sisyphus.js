@@ -189,6 +189,17 @@ document.querySelectorAll('.orbit a').forEach(function (a) {
   });
 });
 
+/* nav bar links jump down to the notebook and switch to the relevant tab */
+var notebookSection = document.getElementById('tracklist');
+function goToNotebookTab(name) {
+  activateNotebookPage(name);
+  notebookSection.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+}
+var navTracklist = document.getElementById('nav-tracklist');
+var navIntro = document.getElementById('nav-intro');
+if (navTracklist) navTracklist.addEventListener('click', function (e) { e.preventDefault(); goToNotebookTab('tracklist'); });
+if (navIntro) navIntro.addEventListener('click', function (e) { e.preventDefault(); goToNotebookTab('intro'); });
+
 /* "collapse all" closes every open track's details */
 var collapseAllBtn = document.getElementById('collapse-all');
 if (collapseAllBtn) {

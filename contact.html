@@ -30,6 +30,13 @@
           </label>
           <input type="text" name="name" placeholder="name" autocomplete="name" required>
           <input type="email" name="_replyto" placeholder="your email" autocomplete="email" required>
+          <select name="role" required>
+            <option value="" disabled selected hidden>I'm a...</option>
+            <option value="producer">producer</option>
+            <option value="instrumentalist">instrumentalist</option>
+            <option value="creative">creative</option>
+            <option value="other">something else</option>
+          </select>
           <textarea name="message" placeholder="message" required></textarea>
           <button type="submit">send</button>
         </form>
