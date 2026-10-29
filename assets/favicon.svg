@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- beamed eighth notes; light outline keeps them visible on dark tab bars -->
+  <g fill="#101012" stroke="#f4f3f0" stroke-width="4" stroke-linejoin="round" paint-order="stroke">
+    <ellipse cx="17" cy="49" rx="10" ry="7.5" transform="rotate(-20 17 49)"/>
+    <ellipse cx="47" cy="43" rx="10" ry="7.5" transform="rotate(-20 47 43)"/>
+    <rect x="22.5" y="13" width="4.5" height="36"/>
+    <rect x="52.5" y="7" width="4.5" height="36"/>
+    <path d="M22.5 13 L57 7 L57 17 L22.5 23 Z"/>
+  </g>
+  <!-- redraw fills on top so outlines don't cut between overlapping shapes -->
+  <g fill="#101012">
+    <ellipse cx="17" cy="49" rx="10" ry="7.5" transform="rotate(-20 17 49)"/>
+    <ellipse cx="47" cy="43" rx="10" ry="7.5" transform="rotate(-20 47 43)"/>
+    <rect x="22.5" y="13" width="4.5" height="36"/>
+    <rect x="52.5" y="7" width="4.5" height="36"/>
+    <path d="M22.5 13 L57 7 L57 17 L22.5 23 Z"/>
+  </g>
+</svg>
