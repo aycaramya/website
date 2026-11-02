@@ -655,3 +655,5 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
   .panel .chev { animation: none; opacity: 0.7; }
   ol.orbit a:hover::before, ol.orbit a:focus-visible::before { animation: none; }
 }
+
+.note .sc-preview { display: block; margin: 10px 0 4px; border: 0; }

@@ -209,3 +209,18 @@ if (collapseAllBtn) {
     });
   });
 }
+
+/* unreleased preview of untitled xiii — pauses when its note is
+   closed, and rewinds when it ends instead of moving on to anything
+   else on soundcloud */
+var scFrame = document.getElementById('sc-preview');
+if (scFrame && window.SC) {
+  var scWidget = SC.Widget(scFrame);
+  scWidget.bind(SC.Widget.Events.FINISH, function () {
+    scWidget.pause();
+    scWidget.seekTo(0);
+  });
+  scFrame.closest('details').addEventListener('toggle', function (e) {
+    if (!e.target.open) scWidget.pause();
+  });
+}
