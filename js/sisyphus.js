@@ -210,17 +210,35 @@ if (collapseAllBtn) {
   });
 }
 
-/* unreleased preview of untitled xiii — pauses when its note is
-   closed, and rewinds when it ends instead of moving on to anything
-   else on soundcloud */
+/* unreleased preview of untitled xiii in the retro player window —
+   the LCD mirrors the widget's state, and the track rewinds when it
+   ends instead of moving on to anything else on soundcloud */
 var scFrame = document.getElementById('sc-preview');
 if (scFrame && window.SC) {
   var scWidget = SC.Widget(scFrame);
+  var player   = document.getElementById('preview-player');
+  var lcdState = document.getElementById('lcd-state');
+  var lcdTime  = document.getElementById('lcd-time');
+
+  function setPlaying(on) {
+    player.classList.toggle('playing', on);
+    lcdState.innerHTML = on ? '&#9654; PLAYING' : '&#10074;&#10074; PAUSED';
+  }
+  function clock(ms) {
+    var s = Math.floor(ms / 1000);
+    return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  scWidget.bind(SC.Widget.Events.PLAY,  function () { setPlaying(true); });
+  scWidget.bind(SC.Widget.Events.PAUSE, function () { setPlaying(false); });
+  scWidget.bind(SC.Widget.Events.PLAY_PROGRESS, function (e) {
+    lcdTime.textContent = clock(e.currentPosition);
+  });
   scWidget.bind(SC.Widget.Events.FINISH, function () {
     scWidget.pause();
     scWidget.seekTo(0);
-  });
-  scFrame.closest('details').addEventListener('toggle', function (e) {
-    if (!e.target.open) scWidget.pause();
+    player.classList.remove('playing');
+    lcdState.innerHTML = '&#9632; STOPPED';
+    lcdTime.textContent = '00:00';
   });
 }

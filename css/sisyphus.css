@@ -507,10 +507,10 @@ ol.orbit li.added a::after { box-shadow: 0 0 0 2px var(--amber) inset; }
     width: 150px; max-width: none;
     margin: 0;
   }
-  .margin-note.n1 { left: -170px; top: 300px; }
-  .margin-note.n2 { right: -170px; top: 270px; }
-  .margin-note.n3 { left: -170px; top: 600px; }
-  .margin-note.n4 { right: -170px; top: 530px; }
+  .margin-note.n1 { left: -170px; top: 440px; }
+  .margin-note.n2 { right: -170px; top: 410px; }
+  .margin-note.n3 { left: -170px; top: 740px; }
+  .margin-note.n4 { right: -170px; top: 670px; }
 }
 
 /* ---- social links as their own sticky note ---- */
@@ -656,4 +656,90 @@ a:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
   ol.orbit a:hover::before, ol.orbit a:focus-visible::before { animation: none; }
 }
 
-.note .sc-preview { display: block; margin: 10px 0 4px; border: 0; }
+/* ---- preview player: an early-2000s media player window ---- */
+
+.winamp {
+  grid-column: 1 / -1;
+  width: 100%; max-width: 560px;
+  margin: 6px auto 0;
+  background: #c9c7c2;
+  border: 2px solid var(--ink);
+  box-shadow: inset 1px 1px 0 #fff, inset -2px -2px 0 #8a8884, 4px 5px 0 rgba(16,16,18,.22);
+  font-family: var(--era);
+}
+.win-title {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 4px 3px 7px;
+  background: linear-gradient(90deg, var(--ember), var(--amber) 70%, var(--yellow));
+  color: #fff;
+  font-size: 11px; font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(16,16,18,.45);
+  border-bottom: 2px solid var(--ink);
+}
+.win-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win-btns { display: flex; gap: 2px; }
+.win-btns i {
+  width: 16px; height: 14px;
+  display: grid; place-items: center;
+  font-style: normal; font-size: 10px; line-height: 1;
+  color: var(--ink); text-shadow: none;
+  background: #c9c7c2;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #6d6b67;
+}
+.win-body { padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+
+/* the green-on-black "LCD" */
+.lcd {
+  display: flex; align-items: stretch; gap: 10px;
+  padding: 7px 9px;
+  background: #0b0d0a;
+  box-shadow: inset 2px 2px 0 #6d6b67, inset -1px -1px 0 #fff;
+  color: #4dff6a;
+  font-family: var(--mono); font-size: 12px;
+  text-shadow: 0 0 4px rgba(77,255,106,.55);
+}
+.lcd-text {
+  flex: 1 1 auto; min-width: 0;
+  display: grid; grid-template-columns: 1fr auto; row-gap: 3px;
+}
+.lcd-state { font-weight: bold; }
+.lcd-time { font-weight: bold; letter-spacing: 0.08em; }
+.lcd-marquee { grid-column: 1 / -1; overflow: hidden; white-space: nowrap; color: var(--yellow); text-shadow: 0 0 4px rgba(255,212,0,.5); }
+.lcd-marquee span { display: inline-block; padding-left: 100%; animation: slide 16s linear infinite; }
+
+/* equalizer bars — sit low while paused, bounce while playing */
+.eq { display: flex; align-items: flex-end; gap: 2px; width: 34px; flex: none; }
+.eq i {
+  flex: 1; height: 15%;
+  background: linear-gradient(to top, #4dff6a 60%, var(--yellow) 85%, var(--ember));
+  transition: height .3s;
+}
+.winamp.playing .eq i { animation: eqBounce .9s ease-in-out infinite alternate; }
+.winamp.playing .eq i:nth-child(2) { animation-duration: .6s; }
+.winamp.playing .eq i:nth-child(3) { animation-duration: 1.1s; }
+.winamp.playing .eq i:nth-child(4) { animation-duration: .7s; }
+.winamp.playing .eq i:nth-child(5) { animation-duration: 1s; }
+.winamp.playing .eq i:nth-child(6) { animation-duration: .5s; }
+.winamp.playing .eq i:nth-child(7) { animation-duration: .8s; }
+@keyframes eqBounce { from { height: 15%; } to { height: 100%; } }
+
+.sc-preview {
+  display: block; border: 0;
+  background: #fff;
+  box-shadow: 0 0 0 1px #6d6b67;
+}
+.win-status {
+  display: flex; justify-content: space-between; gap: 10px;
+  margin: 0;
+  padding: 2px 6px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink);
+  box-shadow: inset 1px 1px 0 #6d6b67, inset -1px -1px 0 #fff;
+}
+.win-blink { color: var(--ember); font-weight: bold; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { visibility: hidden; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lcd-marquee span { animation: none; padding-left: 0; }
+  .winamp.playing .eq i { animation: none; height: 70%; }
+  .win-blink { animation: none; }
+}
