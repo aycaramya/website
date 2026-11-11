@@ -210,6 +210,79 @@ if (collapseAllBtn) {
   });
 }
 
+/* ---- note history: a vertical slider beside each open note scrubs back
+   through what it said in earlier commits (top = now, bottom = oldest).
+   window.TRACK_HISTORY comes from track-history.js, generated at deploy
+   by scripts/build-track-history.mjs; without it there's just no slider. */
+
+/* must match songKey() in scripts/build-track-history.mjs */
+function songKey(s) { return s.replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+function shortDate(iso) {   // 2026-09-24 -> 9/24/26, like the journal
+  var p = iso.split('-');
+  return (+p[1]) + '/' + (+p[2]) + '/' + p[0].slice(2);
+}
+
+if (window.TRACK_HISTORY) {
+  document.querySelectorAll('#page-tracklist ol.tracks > li').forEach(function (li) {
+    var summary  = li.querySelector('summary');
+    var liveNote = li.querySelector('.note');
+    if (!summary || !liveNote) return;
+
+    var title = summary.cloneNode(true);
+    title.querySelectorAll('.moved').forEach(function (m) { m.remove(); });
+    var key = songKey(li.dataset.song || title.textContent);
+
+    /* drop the newest committed version if it's what the page already shows */
+    var past = (TRACK_HISTORY[key] || []).slice();
+    var newest = past[past.length - 1];
+    if (newest) {
+      var probe = document.createElement('div');
+      probe.innerHTML = newest.html;
+      if (songKey(probe.textContent) === songKey(liveNote.textContent)) past.pop();
+    }
+    if (!past.length) return;
+
+    var row = document.createElement('div');
+    row.className = 'note-row';
+    liveNote.parentNode.insertBefore(row, liveNote);
+    row.appendChild(liveNote);
+
+    var oldNote = document.createElement('div');
+    oldNote.className = 'note past';
+    oldNote.hidden = true;
+    row.appendChild(oldNote);
+
+    var last = past.length;   // slider index `last` = the live note
+    var timeline = document.createElement('div');
+    timeline.className = 'timeline';
+    timeline.innerHTML =
+      '<span class="tl-end">now</span>' +
+      '<input type="range" min="0" max="' + last + '" step="1" value="' + last + '">' +
+      '<span class="tl-end">' + shortDate(past[0].date) + '</span>';
+    row.appendChild(timeline);
+
+    var slider  = timeline.querySelector('input');
+    var asOf    = document.createElement('p');
+    asOf.className = 'as-of';
+    slider.setAttribute('aria-label', 'note history for ' + title.textContent.trim());
+
+    function show(i) {
+      var isNow = i === last;
+      liveNote.hidden = !isNow;
+      oldNote.hidden = isNow;
+      slider.setAttribute('aria-valuetext', isNow ? 'now' : shortDate(past[i].date));
+      if (isNow) return;
+      oldNote.innerHTML = past[i].html;
+      if (window.Nutshell) Nutshell.convertLinksToExpandables(oldNote);
+      asOf.textContent = 'as of ' + shortDate(past[i].date);
+      oldNote.insertBefore(asOf, oldNote.firstChild);
+    }
+    slider.addEventListener('input', function () { show(+slider.value); });
+    show(last);
+  });
+}
+
 /* unreleased preview of untitled xiii in the retro player window —
    the LCD mirrors the widget's state, and the track rewinds when it
    ends instead of moving on to anything else on soundcloud */

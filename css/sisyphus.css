@@ -607,6 +607,26 @@ ol.tracks > li.cut { counter-increment: none; }   /* cut songs don't take a numb
 .note .meta { font-family: var(--mono); font-size: 11px; color: var(--grey); margin: 0 0 6px; }
 .note p { margin: 0 0 8px; }
 
+/* note history — slider sits to the right of the note; top = now */
+.note-row { display: flex; align-items: flex-start; gap: 14px; }
+.note-row > .note { flex: 1 1 auto; min-width: 0; }
+.note.past { color: var(--grey); }
+.note.past .as-of {
+  font-family: var(--mono); font-size: 11px; color: var(--ember);
+  margin: 0 0 4px;
+}
+.timeline {
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 2px 4px 12px;
+  font-family: var(--mono); font-size: 10px; color: var(--grey);
+}
+.timeline input[type="range"] {
+  writing-mode: vertical-lr; direction: rtl;   /* vertical, max at the top */
+  width: 16px; height: 110px; margin: 0;
+  accent-color: var(--ember); cursor: ns-resize;
+}
+.timeline input[type="range"]:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
 /* ---- contact form ---- */
 
 #contact { margin-top: 14px; }
